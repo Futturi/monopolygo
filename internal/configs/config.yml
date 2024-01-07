@@ -1,0 +1,9 @@
+port: "8000"
+
+db:
+ host: "localhost"
+ port: "5432"
+ username: "root"
+ password: "12345"
+ dbname: "monopoly"
+ sslmode: "disable"
