@@ -8,6 +8,7 @@ import (
 
 type Authentification interface {
 	SignUp(user models.User) (int, error)
+	GetUser(username, password string) (int, error)
 }
 
 type Repository struct {

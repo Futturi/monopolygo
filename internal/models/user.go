@@ -7,3 +7,8 @@ type User struct {
 	Email    string `json:"email" db:"email"`
 	Password string `json:"password" db:"password_hash"`
 }
+
+type SignInInput struct {
+	Username string `json:"username" db:"username"`
+	Password string `json:"password" db:"password_hash"`
+}

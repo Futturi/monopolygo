@@ -24,3 +24,13 @@ func (r *AuthPostgres) SignUp(user models.User) (int, error) {
 	}
 	return id, nil
 }
+
+func (r *AuthPostgres) GetUser(username, password string) (int, error) {
+	var result int
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username = $1 AND password_hash = $2", userTale)
+	row := r.db.QueryRow(query, username, password)
+	if err := row.Scan(&result); err != nil {
+		return 0, err
+	}
+	return result, nil
+}

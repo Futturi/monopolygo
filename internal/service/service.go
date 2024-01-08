@@ -11,6 +11,7 @@ type Service struct {
 
 type Authentification interface {
 	SignUp(user models.User) (int, error)
+	Token(user models.SignInInput) (string, error)
 }
 
 func NewService(repo *repository.Repository) *Service {

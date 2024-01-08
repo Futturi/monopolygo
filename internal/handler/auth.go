@@ -23,3 +23,17 @@ func (h *Handler) SignUp(c *gin.Context) {
 		"id": res,
 	})
 }
+
+func (h *Handler) Login(c *gin.Context) {
+	var input models.SignInInput
+	if err := c.BindJSON(&input); err != nil {
+		log.Fatalf("error with input: %s", err.Error())
+	}
+	token, err := h.service.Token(input)
+	if err != nil {
+		log.Fatalf("error while creating token: %s", err.Error())
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"token": token,
+	})
+}
