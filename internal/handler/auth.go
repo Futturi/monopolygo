@@ -14,7 +14,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		log.Fatalf("error with input: %s", err.Error())
 		return
 	}
-	res, err := h.service.SignUp(input)
+	res, err := h.service.SignUp(input, h.cfg)
 	if err != nil {
 		log.Fatalf("error while creating user: %s", err.Error())
 		return
@@ -35,5 +35,18 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"token": token,
+	})
+}
+
+func (h *Handler) VerifyEmail(c *gin.Context) {
+	token := c.Param("token")
+	user, err := h.service.VerifyEmail(token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": user,
 	})
 }

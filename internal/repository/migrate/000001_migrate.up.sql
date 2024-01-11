@@ -4,7 +4,9 @@ CREATE TABLE IF NOT EXISTS users
     name varchar,
     username varchar,
     email varchar,
-    password_hash varchar
+    password_hash varchar,
+    token text,
+    is_email_verified boolean not null default false
 );
 
 CREATE TABLE IF NOT EXISTS rooms

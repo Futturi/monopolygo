@@ -8,10 +8,11 @@ import (
 
 type Handler struct {
 	service *service.Service
+	cfg     service.ConfigEmail
 }
 
-func NewHandler(Service *service.Service) *Handler {
-	return &Handler{service: Service}
+func NewHandler(Service *service.Service, cfg service.ConfigEmail) *Handler {
+	return &Handler{service: Service, cfg: cfg}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
@@ -21,12 +22,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth.POST("/signup", h.SignUp)
 		auth.POST("/signin", h.Login)
+		auth.GET("/:token", h.VerifyEmail)
 	}
-	//hub := router.Group("/hub")
+	//hub := router.Group("/hub",h.userIdentity)
 	//{
 	//hub.GET("/", h.AllServers)
 	//hub.GET("/:id", h.GetServerById)
 	//hub.POST("/", h.CreateServer)
 	//}
 	return router
+	//}
 }
