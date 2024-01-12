@@ -23,6 +23,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/signup", h.SignUp)
 		auth.POST("/signin", h.Login)
 		auth.GET("/:token", h.VerifyEmail)
+		auth.POST("/refreshtoken", h.RefreshToken)
 	}
 	//hub := router.Group("/hub",h.userIdentity)
 	//{

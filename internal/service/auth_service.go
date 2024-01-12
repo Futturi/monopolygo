@@ -3,12 +3,12 @@ package service
 import (
 	"awesomeProject/internal/models"
 	"awesomeProject/internal/repository"
-	"crypto/rand"
 	"crypto/sha1"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/stretchr/testify/require"
+	"math/rand"
 	"time"
 )
 
@@ -44,7 +44,7 @@ type tokenClaims struct {
 }
 
 func (a *AuthService) Token(user models.SignInInput) (string, error) {
-	user1, verifyEmail, err := a.repo.GetUser(user.Username, hashedPassword(user.Password))
+	user1, verifyEmail, err := a.repo.GetUser(user.Username, hashedPassword(user.Password), models.NewRefreshToken())
 	if err != nil {
 		return "", err
 	}
@@ -53,7 +53,7 @@ func (a *AuthService) Token(user models.SignInInput) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims{
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		user1,
@@ -61,6 +61,28 @@ func (a *AuthService) Token(user models.SignInInput) (string, error) {
 	return token.SignedString([]byte(signingKey))
 }
 
+func (a *AuthService) RefreshToken(token string) (string, error) {
+	user, err := a.repo.GetUserByToken(token)
+	if err != nil {
+		return "", err
+	}
+	accesstoken := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		user})
+	return accesstoken.SignedString([]byte(signingKey))
+}
+
+func (r *AuthService) GetRefresh(input models.SignInInput) (string, error) {
+
+	refresh_token, err := r.repo.GetRefreshToken(input)
+	if err != nil {
+		return "", err
+	}
+	return refresh_token, nil
+}
 func (r *AuthService) ParseToken(accesstoken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accesstoken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

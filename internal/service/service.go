@@ -22,6 +22,8 @@ type Authentification interface {
 	Token(user models.SignInInput) (string, error)
 	ParseToken(accesstoken string) (int, error)
 	VerifyEmail(token string) (int, error)
+	RefreshToken(token string) (string, error)
+	GetRefresh(input models.SignInInput) (string, error)
 }
 
 func NewService(repo *repository.Repository) *Service {

@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS users
     username varchar,
     email varchar,
     password_hash varchar,
+    refresh_token text,
+    refresh_token_expiry bigint not null default 0,
     token text,
     is_email_verified boolean not null default false
 );

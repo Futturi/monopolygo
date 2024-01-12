@@ -33,8 +33,10 @@ func (h *Handler) Login(c *gin.Context) {
 	if err != nil {
 		log.Fatalf("error while creating token: %s", err.Error())
 	}
+	refresh, err := h.service.GetRefresh(input)
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"token": token,
+		"accesstoken":   token,
+		"refresh_token": refresh,
 	})
 }
 
@@ -48,5 +50,21 @@ func (h *Handler) VerifyEmail(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": user,
+	})
+}
+
+func (h *Handler) RefreshToken(c *gin.Context) {
+	var token models.RefreshToken
+	if err := c.BindJSON(&token); err != nil {
+		log.Fatalf("error with token: %s", err.Error())
+	}
+	result, err := h.service.RefreshToken(token.Token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"token": result,
 	})
 }
