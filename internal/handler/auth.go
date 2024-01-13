@@ -34,6 +34,10 @@ func (h *Handler) Login(c *gin.Context) {
 		log.Fatalf("error while creating token: %s", err.Error())
 	}
 	refresh, err := h.service.GetRefresh(input)
+
+	if err != nil {
+		log.Fatalf("error while creating refresh token: %s", err.Error())
+	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"accesstoken":   token,
 		"refresh_token": refresh,

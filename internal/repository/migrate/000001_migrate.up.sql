@@ -14,7 +14,10 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS rooms
 (
     room_id bigserial PRIMARY KEY,
-    max_users int
+    first_player_id int references users (user_id) on delete cascade not null,
+    second_player_id int references users (user_id) on delete cascade default 1,
+    third_player_id int references users (user_id) on delete cascade default 1,
+    fourth_player_id int references users (user_id) on delete cascade default 1
 );
 
 CREATE TABLE IF NOT EXISTS users_rooms

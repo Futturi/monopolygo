@@ -48,7 +48,7 @@ func (a *AuthService) Token(user models.SignInInput) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if verifyEmail == false {
+	if !verifyEmail {
 		return "", errors.New("your email is not verified")
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims{

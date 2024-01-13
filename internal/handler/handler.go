@@ -25,12 +25,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.GET("/:token", h.VerifyEmail)
 		auth.POST("/refreshtoken", h.RefreshToken)
 	}
-	//hub := router.Group("/hub",h.userIdentity)
-	//{
-	//hub.GET("/", h.AllServers)
-	//hub.GET("/:id", h.GetServerById)
-	//hub.POST("/", h.CreateServer)
-	//}
+	api := router.Group("/api", h.UserIdentity)
+	{
+		hub := api.Group("/hub")
+		{
+			hub.GET("/", h.AllServers)
+			hub.GET("/:room_id", h.GetServerById)
+			hub.POST("/create", h.CreateServer)
+		}
+	}
 	return router
-	//}
 }

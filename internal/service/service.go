@@ -12,10 +12,17 @@ type ConfigEmail struct {
 }
 type Service struct {
 	Authentification
+	Hub
 }
 
 type EmailSender interface {
 	Sendmail(subject string, content string, to []string, cc []string, bcc []string, attachFiles []string) error
+}
+
+type Hub interface {
+	AllServers() ([]models.Room, error)
+	GetServerById(id_room int) (models.Room, error)
+	CreateServer(username string) (int, error)
 }
 type Authentification interface {
 	SignUp(user models.User, cfg ConfigEmail) (int, error)
@@ -27,5 +34,5 @@ type Authentification interface {
 }
 
 func NewService(repo *repository.Repository) *Service {
-	return &Service{Authentification: NewAuthService(repo.Authentification)}
+	return &Service{Authentification: NewAuthService(repo.Authentification), Hub: (repo.Hub)}
 }

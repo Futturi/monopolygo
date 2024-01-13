@@ -14,10 +14,17 @@ type Authentification interface {
 	GetRefreshToken(input models.SignInInput) (string, error)
 }
 
+type Hub interface {
+	AllServers() ([]models.Room, error)
+	GetServerById(id_room int) (models.Room, error)
+	CreateServer(username string) (int, error)
+	GetUserIdByUsername(username string) (int, error)
+}
 type Repository struct {
 	Authentification
+	Hub
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{Authentification: NewAuthPostgres(db)}
+	return &Repository{Authentification: NewAuthPostgres(db), Hub: NewHubPostgres(db)}
 }
