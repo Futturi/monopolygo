@@ -41,13 +41,26 @@ func (r *HubPostgres) CreateServer(username string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	query := fmt.Sprintf("INSERT INTO %s(first_player_id) values($1) RETURNING room_id", roomTable)
-	row := r.db.QueryRow(query, user_id)
-	err = row.Scan(&room_id)
+	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err
 	}
-	return room_id, nil
+	query := fmt.Sprintf("INSERT INTO %s(first_player_id) values($1) RETURNING room_id", roomTable)
+	row := tx.QueryRow(query, user_id)
+	err = row.Scan(&room_id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	query_rooms_users := fmt.Sprintf("INSERT INTO %s(user_id,room_id) values($1,$2)", usersRooms)
+
+	_, err = tx.Exec(query_rooms_users, user_id, room_id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+	return room_id, tx.Commit()
 }
 
 func (r *HubPostgres) GetUserIdByUsername(username string) (int, error) {
@@ -59,4 +72,94 @@ func (r *HubPostgres) GetUserIdByUsername(username string) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func (r *HubPostgres) Connect(room_id int, username string) (models.Room, error) {
+	var room models.Room
+	user_id, err := r.GetUserIdByUsername(username)
+	if err != nil {
+		return models.Room{}, err
+	}
+	tx, err := r.db.Begin()
+	if err != nil {
+		return models.Room{}, err
+	}
+
+	rooms_query := fmt.Sprintf(`UPDATE %s
+		SET
+		second_player_id = CASE
+			WHEN second_player_id = 1 then $1
+			ELSE second_player_id 
+			end,
+		third_player_id = case
+			when second_player_id != 1 and third_player_id = 1 then $1
+			else third_player_id 
+			end,
+		fourth_player_id = case 
+			when second_player_id != 1 and third_player_id != 1 and fourth_player_id = 1 then $1
+			else fourth_player_id 
+			end
+		where room_id =$2 returning *;`, roomTable)
+	row := tx.QueryRow(rooms_query, user_id, room_id)
+	err = row.Scan(&room.RoomId, &room.First_player_id, &room.Second_player_id, &room.Third_player_id, &room.Fourth_player_id)
+	if err != nil {
+		tx.Rollback()
+		return models.Room{}, err
+	}
+
+	rooms_user_query := fmt.Sprintf("INSERT INTO %s(user_id,room_id) values($1,$2)", usersRooms)
+	_, err = tx.Exec(rooms_user_query, user_id, room_id)
+	if err != nil {
+		tx.Rollback()
+		return models.Room{}, err
+	}
+	return room, tx.Commit()
+}
+
+func (r *HubPostgres) Disconnect(room_id int, username string) (models.Room, error) {
+	var room models.Room
+
+	user_id, err := r.GetUserIdByUsername(username)
+	if err != nil {
+		return models.Room{}, err
+	}
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return models.Room{}, err
+	}
+
+	rooms_query := fmt.Sprintf(`UPDATE %s
+		SET
+		first_plyaer_id = CASE
+			WHEN first_player_id = $1 then 1
+			ELSE first_player_id
+			end,
+		second_player_id = CASE
+			WHEN second_player_id = $1 then 1
+			ELSE second_player_id 
+			end,
+		third_player_id = case
+			when third_player_id = $1 then 1
+			else third_player_id 
+			end,
+		fourth_player_id = case 
+			when ourth_player_id = $1 then 1
+			else fourth_player_id 
+			end
+		where room_id =$2 returning *;`, roomTable)
+	row := tx.QueryRow(rooms_query, user_id, room_id)
+
+	if err = row.Scan(&room); err != nil {
+		return models.Room{}, err
+	}
+
+	rooms_user_query := fmt.Sprintf("UPDATE %s SET user_id = 1 WHERE room_id = $1 and user_id = $2")
+
+	_, err = tx.Exec(rooms_user_query, room_id, user_id)
+	if err != nil {
+		return models.Room{}, err
+	}
+
+	return room, tx.Commit()
 }

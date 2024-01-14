@@ -32,6 +32,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			hub.GET("/", h.AllServers)
 			hub.GET("/:room_id", h.GetServerById)
 			hub.POST("/create", h.CreateServer)
+			hub.POST("/connect/:room_id", h.Connect)
+			hub.POST("/disconnect/:room_id", h.Disconnect)
+			// room := hub.Group("/:room_id")
+			// {
+			// 	//room. что-то, здесь уже идет реализация логики самой монополии
+			// 	//room.POST("/buy", h.Buy)
+			// 	//room.
+			// }
 		}
 	}
 	return router

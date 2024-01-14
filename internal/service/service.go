@@ -23,6 +23,8 @@ type Hub interface {
 	AllServers() ([]models.Room, error)
 	GetServerById(id_room int) (models.Room, error)
 	CreateServer(username string) (int, error)
+	Connect(room_id int, username string) (models.Room, error)
+	Disconnect(room_id int, username string) (models.Room, error)
 }
 type Authentification interface {
 	SignUp(user models.User, cfg ConfigEmail) (int, error)

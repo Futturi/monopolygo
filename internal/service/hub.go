@@ -25,3 +25,11 @@ func (s *HubService) GetServerById(id_room int) (models.Room, error) {
 func (s *HubService) CreateServer(username string) (int, error) {
 	return s.repo.CreateServer(username)
 }
+
+func (s *HubService) Connect(room_id int, username string) (models.Room, error) {
+	return s.repo.Connect(room_id, username)
+}
+
+func (s *HubService) Disconnect(room_id int, username string) (models.Room, error) {
+	return s.repo.Disconnect(room_id, username)
+}
