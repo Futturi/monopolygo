@@ -53,7 +53,7 @@ func (a *AuthService) Token(user models.SignInInput) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims{
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
+			ExpiresAt: time.Now().Add(50 * time.Minute).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		user1,

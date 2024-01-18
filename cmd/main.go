@@ -40,6 +40,7 @@ func main() {
 	repo := repository.NewRepository(db)
 	serv := service.NewService(repo)
 	handl := handler.NewHandler(serv, cfgEmail)
+
 	server := new(server.Server)
 	if err := server.Run(viper.GetString("port"), handl.InitRoutes()); err != nil {
 		log.Fatalf("error while running server + %s", err.Error())

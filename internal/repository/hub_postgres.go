@@ -154,7 +154,7 @@ func (r *HubPostgres) Disconnect(room_id int, username string) (models.Room, err
 		return models.Room{}, err
 	}
 
-	rooms_user_query := fmt.Sprintf("UPDATE %s SET user_id = 1 WHERE room_id = $1 and user_id = $2")
+	rooms_user_query := fmt.Sprintf("UPDATE %s SET user_id = 1 WHERE room_id = $1 and user_id = $2", usersRooms)
 
 	_, err = tx.Exec(rooms_user_query, room_id, user_id)
 	if err != nil {
@@ -162,4 +162,35 @@ func (r *HubPostgres) Disconnect(room_id int, username string) (models.Room, err
 	}
 
 	return room, tx.Commit()
+}
+
+func (r *HubPostgres) IsServerFull(id_room int) (bool, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE room_id = $1 and first_player_id != 1 and second_player_id != 1 and third_player_id != 1 and fourth_player_id != 1", roomTable)
+	_, err := r.db.Exec(query, id_room)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *HubPostgres) GetUsernameById(id int) (string, error) {
+	query := fmt.Sprintf("SELECT username FROM %s WHERE user_id = $1", userTale)
+	var username string
+
+	err := r.db.QueryRow(query, id).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}
+
+func (r *HubPostgres) GetUsersByRoomId(id int) []int {
+
+	var users []int
+	query := fmt.Sprintf("SELECT user_id FROM %s WHERE room_id = $1", usersRooms)
+	err := r.db.Select(&users, query, id)
+	if err != nil {
+		return nil
+	}
+	return users
 }

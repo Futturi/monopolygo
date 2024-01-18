@@ -33,3 +33,15 @@ func (s *HubService) Connect(room_id int, username string) (models.Room, error) 
 func (s *HubService) Disconnect(room_id int, username string) (models.Room, error) {
 	return s.repo.Disconnect(room_id, username)
 }
+
+func (s *HubService) IsServerFull(id_room int) (bool, error) {
+	return s.repo.IsServerFull(id_room)
+}
+
+func (s *HubService) GetUsernameById(id int) (string, error) {
+	return s.repo.GetUsernameById(id)
+}
+
+func (s *HubService) GetUsersByRoomId(id int) []int {
+	return s.repo.GetUsersByRoomId(id)
+}

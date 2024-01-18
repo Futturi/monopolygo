@@ -17,7 +17,6 @@ func NewHandler(Service *service.Service, cfg service.ConfigEmail) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
-
 	auth := router.Group("/auth")
 	{
 		auth.POST("/signup", h.SignUp)
@@ -34,12 +33,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			hub.POST("/create", h.CreateServer)
 			hub.POST("/connect/:room_id", h.Connect)
 			hub.POST("/disconnect/:room_id", h.Disconnect)
-			// room := hub.Group("/:room_id")
-			// {
-			// 	//room. что-то, здесь уже идет реализация логики самой монополии
-			// 	//room.POST("/buy", h.Buy)
-			// 	//room.
-			// }
+			room := hub.Group("/:room_id")
+			{
+				room.GET("/", h.Game)
+			}
 		}
 	}
 	return router

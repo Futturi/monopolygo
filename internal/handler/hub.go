@@ -6,6 +6,11 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/olahol/melody"
+)
+
+var (
+	m = melody.New()
 )
 
 func (h *Handler) AllServers(c *gin.Context) {
@@ -54,9 +59,7 @@ func (h *Handler) CreateServer(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"room_id": room_id,
-	})
+	c.Redirect(http.StatusFound, "/room/"+strconv.Itoa(room_id))
 }
 
 func (h *Handler) Connect(c *gin.Context) {
@@ -85,6 +88,14 @@ func (h *Handler) Connect(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"room": room,
 	})
+
+	m.BroadcastBinary([]byte(user.Username + " joined the room"))
+
+	m.HandleMessage(func(s *melody.Session, msg []byte) {
+		m.Broadcast(msg)
+	})
+
+	c.Redirect(http.StatusFound, "/room/"+c.Param("room_id"))
 }
 
 func (h *Handler) Disconnect(c *gin.Context) {

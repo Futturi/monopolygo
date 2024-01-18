@@ -21,6 +21,9 @@ type Hub interface {
 	GetUserIdByUsername(username string) (int, error)
 	Connect(room_id int, username string) (models.Room, error)
 	Disconnect(room_id int, username string) (models.Room, error)
+	IsServerFull(id_room int) (bool, error)
+	GetUsernameById(id int) (string, error)
+	GetUsersByRoomId(id int) []int
 }
 type Repository struct {
 	Authentification
